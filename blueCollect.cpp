@@ -15,8 +15,35 @@ int main()
 {
 	FILE *in1;
 	int i = 0;
-	char buff[1024];
-	char tmp[1024];
+    int index = 3;
+    int pressIndex = 0;
+    int pressureCount = 0;
+    int pressures[47];
+    char buff[1024];
+    char tmp[1024];
+    char pressurePoint[3];
+    char accelX_msb[3];
+    char accelX_lsb[3];
+    char accelY_msb[3];
+    char accelY_lsb[3];
+    char accelZ_msb[3];
+    char accelZ_lsb[3];
+    char gyrX_msb[3];
+    char gyrX_lsb[3];
+    char gyrY_msb[3];
+    char gyrY_lsb[3];
+    char gyrZ_msb[3];
+    char gyrZ_lsb[3];
+    char magX_msb[3];
+    char magX_lsb[3];
+    char magY_msb[3];
+    char magY_lsb[3];
+    char magZ_msb[3];
+    char magZ_lsb[3];
+    float accX = 0.0, accY = 0.0, accZ = 0.0, gyrX = 0.0, gyrY = 0.0, gyrZ = 0.0, magX = 0.0, magY = 0.0, magZ = 0.0;
+    int timeStamp;
+    char rawPressures[47];
+    int lineCount = 1;
 	//Initial Connect to bind transfer
 	system("hcitool lecc B4:99:4C:6C:15:51");
 	sleep(3); 
@@ -33,18 +60,195 @@ int main()
         str.erase (0,36);
         //Uncomment the following lines if you just want pure characters to be printed out.
         //You can access each character by tmp[i], i being the index of the character array.
-   //   strcpy(tmp, str.c_str()); 
-   //   cout << tmp ;
-        istringstream hex_chars_stream(str);
+        strcpy(tmp, str.c_str()); 
+        //cout << tmp;
+        //if(lineCount == 1)
+        //{
+        index = 3;
+        //pressureCount = 1;
+
+        if(tmp[1] == '0' || tmp[1] == '1')
+        {
+           cout<<"Pressure Points: ";
+           while(index < 60)
+           {
+            memcpy(pressurePoint, &tmp[index], 2);
+            pressurePoint[2] = '\0';
+            index = index + 3;
+            //cout<<pressurePoint<<" ";
+            cout<<(255 - (((unsigned int)strtol(pressurePoint, NULL, 16))))<<" ";
+            //cout<<tmp[1]<<" ";
+           }   //pressures[pressIndex] = 255 - (((int)strtol(pressurePoint, NULL, 16))); //* 10 + ((int)strtol(pressurePoint, NULL, 16)));
+        }
+
+        else if(tmp[1] == '2')
+        {
+            cout<<"Pressure Points: ";
+            while(index < 33)
+            {
+                memcpy(pressurePoint, &tmp[index], 2);
+                pressurePoint[2] = '\0';
+                index = index + 3;
+                cout<<(255 - (((unsigned int)strtol(pressurePoint, NULL, 16))))<<" ";
+            }   
+        }
+
+        else if(tmp[1] == '3')
+        {
+           //  while(index < 60)
+           // {
+           //  memcpy(pressurePoint, &tmp[index], 2);
+           //  pressurePoint[2] = '\0';
+           //  index = index + 3;
+            //cout<<pressurePoint<<" ";
+            memcpy(accelX_msb, &tmp[3], 2);
+            accelX_msb[2] = '\0';
+            memcpy(accelX_lsb, &tmp[6], 2);
+            accelX_lsb[2] = '\0';
+            memcpy(accelY_msb, &tmp[9], 2);
+            accelY_msb[2] = '\0';
+            memcpy(accelY_lsb, &tmp[12], 2);
+            accelY_lsb[2] = '\0';
+            memcpy(accelZ_msb, &tmp[15], 2);
+            accelZ_msb[2] = '\0';
+            memcpy(accelZ_lsb, &tmp[18], 2);
+            accelZ_lsb[2] = '\0';
+            memcpy(gyrX_msb, &tmp[24], 2);
+            gyrX_msb[2] = '\0';
+            memcpy(gyrX_lsb, &tmp[27], 2);
+            gyrX_lsb[2] = '\0';
+            memcpy(gyrY_msb, &tmp[30], 2);
+            gyrY_msb[2] = '\0';
+            memcpy(gyrY_lsb, &tmp[33], 2);
+            gyrY_lsb[2] = '\0';
+            memcpy(gyrZ_msb, &tmp[36], 2);
+            gyrZ_msb[2] = '\0';
+            memcpy(gyrZ_lsb, &tmp[39], 2);
+            gyrZ_lsb[2] = '\0';
+            memcpy(magX_msb, &tmp[42], 2);
+            magX_msb[2] = '\0';
+            memcpy(magX_lsb, &tmp[45], 2);
+            magX_lsb[2] = '\0';
+            memcpy(magY_msb, &tmp[48], 2);
+            magY_msb[2] = '\0';
+            memcpy(magY_lsb, &tmp[51], 2);
+            magY_lsb[2] = '\0';
+            memcpy(magZ_msb, &tmp[54], 2);
+            magZ_msb[2] = '\0';
+            memcpy(magZ_lsb, &tmp[57], 2);
+            magZ_lsb[2] = '\0';
+
+            // accX = (((int)strtol(accelX_msb,NULL,16)) << 8 | ((int)strtol(accelX_lsb,NULL,16) ))/16056.0f;
+            // accY = (((int)strtol(accelY_msb,NULL,16)) << 8 | ((int)strtol(accelY_lsb,NULL,16) ))/16056.0f;
+            // accZ = (((int)strtol(accelZ_msb,NULL,16)) << 8 | ((int)strtol(accelZ_lsb,NULL,16) ))/16056.0f;
+
+            accX = ((((unsigned int)strtol(accelX_msb,NULL,8)) << 8 | ((unsigned int)strtol(accelX_lsb,NULL,16)) ) / 16056.0f) * 100000;
+            accY = ((((unsigned int)strtol(accelY_msb,NULL,8)) << 8 | ((unsigned int)strtol(accelY_lsb,NULL,16)) ) / 16056.0f) * 100000;
+            accZ = ((((unsigned int)strtol(accelZ_msb,NULL,8)) << 8 | ((unsigned int)strtol(accelZ_lsb,NULL,16)) ) / 16056.0f) * 100000;
+
+            if(accX > 32767)
+                accX = -1 * (65536 - accX);
+            if(accY > 32767)
+                accY = -1 * (65536 - accY);
+            if(accZ > 32767)
+                accZ = -1 * (65536 - accZ);
+            
+
+            gyrX = ((((unsigned int)strtol(gyrX_msb,NULL,16)) << 8 | ((unsigned int)strtol(gyrX_lsb,NULL,16)) & 0xffu) / 262.0f) * 1000;
+            gyrY = ((((unsigned int)strtol(gyrY_msb,NULL,16)) << 8 | ((unsigned int)strtol(gyrY_lsb,NULL,16)) & 0xffu) / 262.0f) * 1000;
+            gyrZ = ((((unsigned int)strtol(gyrZ_msb,NULL,16)) << 8 | ((unsigned int)strtol(gyrZ_lsb,NULL,16)) & 0xffu) / 262.0f) * 1000;
+
+            if(gyrX > 32767)
+                gyrX = -1 * (65536 - gyrX);
+            if(gyrY > 32767)
+                gyrY = -1 * (65536 - gyrY);
+            if(gyrZ > 32767)
+                gyrZ = -1 * (65536 - gyrZ);
+
+            magX = (((unsigned int)strtol(magX_msb,NULL,16)) << 8 | ((unsigned int)strtol(magX_lsb,NULL,16)) & 0xffu);
+            magY = (((unsigned int)strtol(magY_msb,NULL,16)) << 8 | ((unsigned int)strtol(magY_lsb,NULL,16)) & 0xffu);
+            magZ = (((unsigned int)strtol(magZ_msb,NULL,16)) << 8 | ((unsigned int)strtol(magZ_lsb,NULL,16)) & 0xffu);
+
+            if(magX > 32767)
+                magX = -1 * (65536 - magX);
+            if(magY > 32767)
+                magY = -1 * (65536 - magY);
+            if(magZ > 32767)
+                magZ = -1 * (65536 - magZ);
+
+            cout<<"AccX: "<<accX<<" AccY: "<<accY<<" AccZ: "<<accZ<<endl;
+            cout<<"GyrX: "<<gyrX<<" GyrY: "<<gyrY<<" GyrZ: "<<gyrZ<<endl;
+            cout<<"MagX: "<<magX/1000<<" MagY: "<<magY/1000<<" MagZ: "<<magZ/1000<<endl;
+            
+            //cout<<tmp[1]<<" ";
+          // } 
+        }
+
+
+
+            // pressIndex ++;
+            // if(pressIndex == 47)
+            //   pressIndex = 0;
+            //lineCount ++;
+      //}
+        //}
+
+        // if(lineCount == 2)
+        // {
+        //   while(index < 60)
+        //   {
+        //     memcpy(pressurePoint, &tmp[index], 2);
+        //     pressurePoint[2] = '\0';
+        //     index = index + 3;
+        //     cout<<pressurePoint<<" ";
+        //     //pressures[pressIndex] = (((int)strtol(pressurePoint, NULL, 16))); //* 10 + ((int)strtol(pressurePoint, NULL, 16)));
+        //     pressIndex ++;
+        //     if(pressIndex == 47)
+        //       pressIndex = 0;
+        //     lineCount ++;
+        //   }
+        // }
+        
+        // if(lineCount == 3)
+        // {
+        //   while(index < 30)
+        //   {
+        //     memcpy(pressurePoint, &tmp[index], 2 );
+        //     pressurePoint[2] = '\0';
+        //     index = index + 3;
+        //     //pressures[pressIndex] = (((int)strtol(pressurePoint, NULL, 16))); //* 10 + ((int)strtol(pressurePoint, NULL, 16)));
+        //     cout<<pressurePoint<<" ";
+        //     pressIndex ++;
+        //     if(pressIndex == 47)
+        //       pressIndex = 0;
+        //   }
+        // }
+
+        //  if(lineCount == 3)
+        //  {
+        //    int loopVar = 0;
+        //    while(loopVar < 48)
+        //    {
+        //      //pressures[loopVar] = 255 - pressures[loopVar];
+        //      //cout<<pressures[loopVar]<<" ";
+        //      loopVar ++;
+        //    }
+        //  }
+
+        // lineCount ++;
+        // if(lineCount > 4)
+        //   lineCount == 1;
+        //istringstream hex_chars_stream(str);
    //   vector<unsigned char> bytes;
-        unsigned int c;
-	    while (hex_chars_stream >> hex >> c)
-		{
+      //  unsigned int c;
+	  //while (hex_chars_stream >> hex >> c)
+		//{
    //   	//bytes.push_back(c);
-		 	cout<<c<<" ";
+		 	//cout<<c<<" ";
 		 	//TODO: Parse and Convert hex data set as per requirement.
-		}
-		cout<<"Transmission ends \n\n"<<endl;
+		//}
+		cout<<endl;
+    index = 0;
     }
     pclose(in1);
 	return 0;
