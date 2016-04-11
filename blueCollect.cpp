@@ -62,10 +62,9 @@ int main()
         //You can access each character by tmp[i], i being the index of the character array.
         strcpy(tmp, str.c_str()); 
         //cout << tmp;
-        //if(lineCount == 1)
-        //{
+        
         index = 3;
-        //pressureCount = 1;
+    
 
         if(tmp[1] == '0' || tmp[1] == '1')
         {
@@ -75,10 +74,8 @@ int main()
             memcpy(pressurePoint, &tmp[index], 2);
             pressurePoint[2] = '\0';
             index = index + 3;
-            //cout<<pressurePoint<<" ";
             cout<<(255 - (((unsigned int)strtol(pressurePoint, NULL, 16))))<<" ";
-            //cout<<tmp[1]<<" ";
-           }   //pressures[pressIndex] = 255 - (((int)strtol(pressurePoint, NULL, 16))); //* 10 + ((int)strtol(pressurePoint, NULL, 16)));
+           }   
         }
 
         else if(tmp[1] == '2')
@@ -95,12 +92,6 @@ int main()
 
         else if(tmp[1] == '3')
         {
-           //  while(index < 60)
-           // {
-           //  memcpy(pressurePoint, &tmp[index], 2);
-           //  pressurePoint[2] = '\0';
-           //  index = index + 3;
-            //cout<<pressurePoint<<" ";
             memcpy(accelX_msb, &tmp[3], 2);
             accelX_msb[2] = '\0';
             memcpy(accelX_lsb, &tmp[6], 2);
@@ -113,61 +104,73 @@ int main()
             accelZ_msb[2] = '\0';
             memcpy(accelZ_lsb, &tmp[18], 2);
             accelZ_lsb[2] = '\0';
-            memcpy(gyrX_msb, &tmp[24], 2);
+            memcpy(gyrX_msb, &tmp[21], 2);
             gyrX_msb[2] = '\0';
-            memcpy(gyrX_lsb, &tmp[27], 2);
+            memcpy(gyrX_lsb, &tmp[24], 2);
             gyrX_lsb[2] = '\0';
-            memcpy(gyrY_msb, &tmp[30], 2);
+            memcpy(gyrY_msb, &tmp[27], 2);
             gyrY_msb[2] = '\0';
-            memcpy(gyrY_lsb, &tmp[33], 2);
+            memcpy(gyrY_lsb, &tmp[30], 2);
             gyrY_lsb[2] = '\0';
-            memcpy(gyrZ_msb, &tmp[36], 2);
+            memcpy(gyrZ_msb, &tmp[33], 2);
             gyrZ_msb[2] = '\0';
-            memcpy(gyrZ_lsb, &tmp[39], 2);
+            memcpy(gyrZ_lsb, &tmp[36], 2);
             gyrZ_lsb[2] = '\0';
-            memcpy(magX_msb, &tmp[42], 2);
+            memcpy(magX_msb, &tmp[39], 2);
             magX_msb[2] = '\0';
-            memcpy(magX_lsb, &tmp[45], 2);
+            memcpy(magX_lsb, &tmp[42], 2);
             magX_lsb[2] = '\0';
-            memcpy(magY_msb, &tmp[48], 2);
+            memcpy(magY_msb, &tmp[45], 2);
             magY_msb[2] = '\0';
-            memcpy(magY_lsb, &tmp[51], 2);
+            memcpy(magY_lsb, &tmp[48], 2);
             magY_lsb[2] = '\0';
-            memcpy(magZ_msb, &tmp[54], 2);
+            memcpy(magZ_msb, &tmp[51], 2);
             magZ_msb[2] = '\0';
-            memcpy(magZ_lsb, &tmp[57], 2);
+            memcpy(magZ_lsb, &tmp[54], 2);
             magZ_lsb[2] = '\0';
 
             // accX = (((int)strtol(accelX_msb,NULL,16)) << 8 | ((int)strtol(accelX_lsb,NULL,16) ))/16056.0f;
             // accY = (((int)strtol(accelY_msb,NULL,16)) << 8 | ((int)strtol(accelY_lsb,NULL,16) ))/16056.0f;
             // accZ = (((int)strtol(accelZ_msb,NULL,16)) << 8 | ((int)strtol(accelZ_lsb,NULL,16) ))/16056.0f;
 
-            accX = ((((unsigned int)strtol(accelX_msb,NULL,8)) << 8 | ((unsigned int)strtol(accelX_lsb,NULL,16)) ) / 16056.0f) * 100000;
-            accY = ((((unsigned int)strtol(accelY_msb,NULL,8)) << 8 | ((unsigned int)strtol(accelY_lsb,NULL,16)) ) / 16056.0f) * 100000;
-            accZ = ((((unsigned int)strtol(accelZ_msb,NULL,8)) << 8 | ((unsigned int)strtol(accelZ_lsb,NULL,16)) ) / 16056.0f) * 100000;
+            accX = ((((int)strtol(accelX_msb,NULL,16)) << 8 | ((int)strtol(accelX_lsb,NULL,16))) ) ;
+            accY = ((((int)strtol(accelY_msb,NULL,16)) << 8 | ((int)strtol(accelY_lsb,NULL,16))) ) ;
+            accZ = ((((int)strtol(accelZ_msb,NULL,16)) << 8 | ((int)strtol(accelZ_lsb,NULL,16))) ) ;
 
             if(accX > 32767)
-                accX = -1 * (65536 - accX);
+                accX = (-1 * (65536 - accX))/16056.0f;
+            else
+                accX = accX/16056.0f;
             if(accY > 32767)
-                accY = -1 * (65536 - accY);
+                accY = (-1 * (65536 - accY))/16056.0f;
+            else
+                accY = accY/16056.0f;
             if(accZ > 32767)
-                accZ = -1 * (65536 - accZ);
+                accZ = (-1 * (65536 - accZ))/16056.0f;
+            else
+                accZ = accZ/6056.0f;
             
 
-            gyrX = ((((unsigned int)strtol(gyrX_msb,NULL,16)) << 8 | ((unsigned int)strtol(gyrX_lsb,NULL,16)) & 0xffu) / 262.0f) * 1000;
-            gyrY = ((((unsigned int)strtol(gyrY_msb,NULL,16)) << 8 | ((unsigned int)strtol(gyrY_lsb,NULL,16)) & 0xffu) / 262.0f) * 1000;
-            gyrZ = ((((unsigned int)strtol(gyrZ_msb,NULL,16)) << 8 | ((unsigned int)strtol(gyrZ_lsb,NULL,16)) & 0xffu) / 262.0f) * 1000;
+            gyrX = (((int)strtol(gyrX_msb,NULL,16)) << 8 | ((int)strtol(gyrX_lsb,NULL,16))) ;
+            gyrY = (((int)strtol(gyrY_msb,NULL,16)) << 8 | ((int)strtol(gyrY_lsb,NULL,16))) ;
+            gyrZ = (((int)strtol(gyrZ_msb,NULL,16)) << 8 | ((int)strtol(gyrZ_lsb,NULL,16))) ;
 
             if(gyrX > 32767)
-                gyrX = -1 * (65536 - gyrX);
+                gyrX = (-1 * (65536 - gyrX))/262.0f;
+            else
+                gyrX = gyrX/262.0f;
             if(gyrY > 32767)
-                gyrY = -1 * (65536 - gyrY);
+                gyrY = (-1 * (65536 - gyrY))/262.0f;
+            else
+                gyrY = gyrY/262.0f;
             if(gyrZ > 32767)
-                gyrZ = -1 * (65536 - gyrZ);
+                gyrZ = (-1 * (65536 - gyrZ))/262.0f;
+            else
+                gyrZ = gyrZ/262.0f;
 
-            magX = (((unsigned int)strtol(magX_msb,NULL,16)) << 8 | ((unsigned int)strtol(magX_lsb,NULL,16)) & 0xffu);
-            magY = (((unsigned int)strtol(magY_msb,NULL,16)) << 8 | ((unsigned int)strtol(magY_lsb,NULL,16)) & 0xffu);
-            magZ = (((unsigned int)strtol(magZ_msb,NULL,16)) << 8 | ((unsigned int)strtol(magZ_lsb,NULL,16)) & 0xffu);
+            magX = (((unsigned int)strtol(magX_msb,NULL,16)) << 8 | ((unsigned int)strtol(magX_lsb,NULL,16)) );
+            magY = (((unsigned int)strtol(magY_msb,NULL,16)) << 8 | ((unsigned int)strtol(magY_lsb,NULL,16)) );
+            magZ = (((unsigned int)strtol(magZ_msb,NULL,16)) << 8 | ((unsigned int)strtol(magZ_lsb,NULL,16)) );
 
             if(magX > 32767)
                 magX = -1 * (65536 - magX);
@@ -179,74 +182,8 @@ int main()
             cout<<"AccX: "<<accX<<" AccY: "<<accY<<" AccZ: "<<accZ<<endl;
             cout<<"GyrX: "<<gyrX<<" GyrY: "<<gyrY<<" GyrZ: "<<gyrZ<<endl;
             cout<<"MagX: "<<magX/1000<<" MagY: "<<magY/1000<<" MagZ: "<<magZ/1000<<endl;
-            
-            //cout<<tmp[1]<<" ";
-          // } 
+             
         }
-
-
-
-            // pressIndex ++;
-            // if(pressIndex == 47)
-            //   pressIndex = 0;
-            //lineCount ++;
-      //}
-        //}
-
-        // if(lineCount == 2)
-        // {
-        //   while(index < 60)
-        //   {
-        //     memcpy(pressurePoint, &tmp[index], 2);
-        //     pressurePoint[2] = '\0';
-        //     index = index + 3;
-        //     cout<<pressurePoint<<" ";
-        //     //pressures[pressIndex] = (((int)strtol(pressurePoint, NULL, 16))); //* 10 + ((int)strtol(pressurePoint, NULL, 16)));
-        //     pressIndex ++;
-        //     if(pressIndex == 47)
-        //       pressIndex = 0;
-        //     lineCount ++;
-        //   }
-        // }
-        
-        // if(lineCount == 3)
-        // {
-        //   while(index < 30)
-        //   {
-        //     memcpy(pressurePoint, &tmp[index], 2 );
-        //     pressurePoint[2] = '\0';
-        //     index = index + 3;
-        //     //pressures[pressIndex] = (((int)strtol(pressurePoint, NULL, 16))); //* 10 + ((int)strtol(pressurePoint, NULL, 16)));
-        //     cout<<pressurePoint<<" ";
-        //     pressIndex ++;
-        //     if(pressIndex == 47)
-        //       pressIndex = 0;
-        //   }
-        // }
-
-        //  if(lineCount == 3)
-        //  {
-        //    int loopVar = 0;
-        //    while(loopVar < 48)
-        //    {
-        //      //pressures[loopVar] = 255 - pressures[loopVar];
-        //      //cout<<pressures[loopVar]<<" ";
-        //      loopVar ++;
-        //    }
-        //  }
-
-        // lineCount ++;
-        // if(lineCount > 4)
-        //   lineCount == 1;
-        //istringstream hex_chars_stream(str);
-   //   vector<unsigned char> bytes;
-      //  unsigned int c;
-	  //while (hex_chars_stream >> hex >> c)
-		//{
-   //   	//bytes.push_back(c);
-		 	//cout<<c<<" ";
-		 	//TODO: Parse and Convert hex data set as per requirement.
-		//}
 		cout<<endl;
     index = 0;
     }
