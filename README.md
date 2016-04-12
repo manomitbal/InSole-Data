@@ -18,9 +18,15 @@ For Linux Users:
 Issues:
 
 After running the program, successful binding of the bluetooth connection will be evidenced by the statements
-"Connection Handle #" for each Sole. Sometimes, there is a Input Output error which can usually be reset by turning the devices on 
+"Connection Handle #" for each Sole. Sometimes, there is an Input Output error which can usually be reset by turning the devices on 
 and off again, and running "hcitool lescan"
 
 This should scan for the two devices after which run ./blue again.
+
+Data Format:
+
+Pressures 1-48 Left and Right Alternating.
+Right Sole IMU data
+Left Sole IMU data
 
 -Manomit 
