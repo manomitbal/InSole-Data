@@ -29,4 +29,6 @@ Pressures 1-48 Left and Right Alternating.
 Right Sole IMU data
 Left Sole IMU data
 
+Attached to this repository is a test data set with undoctored raw HEX values advertised from the soles. 
+
 -Manomit 
