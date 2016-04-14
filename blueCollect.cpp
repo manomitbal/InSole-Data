@@ -42,7 +42,8 @@ int main()
     char magY_lsb[3];
     char magZ_msb[3];
     char magZ_lsb[3];
-    float accX = 0.0, accY = 0.0, accZ = 0.0, gyrX = 0.0, gyrY = 0.0, gyrZ = 0.0, magX = 0.0, magY = 0.0, magZ = 0.0;
+    char unknown[3];
+    float accX = 0.0, accY = 0.0, accZ = 0.0, gyrX = 0.0, gyrY = 0.0, gyrZ = 0.0, magX = 0.0, magY = 0.0, magZ = 0.0, unknownx = 0.0;
     int timeStamp;
     char rawPressures[47];
     int lineCount = 1;
@@ -132,7 +133,8 @@ int main()
             magZ_msb[2] = '\0';
             memcpy(magZ_lsb, &tmp[54], 2);
             magZ_lsb[2] = '\0';
-
+            memcpy(unknown, &tmp[57], 2);
+            unknown[2] = '\0';
             // accX = (((int)strtol(accelX_msb,NULL,16)) << 8 | ((int)strtol(accelX_lsb,NULL,16) ))/16056.0f;
             // accY = (((int)strtol(accelY_msb,NULL,16)) << 8 | ((int)strtol(accelY_lsb,NULL,16) ))/16056.0f;
             // accZ = (((int)strtol(accelZ_msb,NULL,16)) << 8 | ((int)strtol(accelZ_lsb,NULL,16) ))/16056.0f;
@@ -183,6 +185,8 @@ int main()
             if(magZ > 32767)
                 magZ = -1 * (65536 - magZ);
 
+            unknownx = (unsigned int)strtol(unknown,NULL,16) << 8; 
+
             //Bob code begins here
             int pitchAcc;
             pitchAcc=atan(accY/(sqrt(accX*accX+accZ*accZ)))*180/3.14;
@@ -204,15 +208,25 @@ int main()
             rollAcc=atan(-accX/accZ)*180/3.14;
 
             int yaw;
-            yaw = 180 * atan (accZ/sqrt(accX*accX + accZ*accZ))/3.14;
+            //yaw = atan (accZ/sqrt(accX*accX + accZ*accZ))*180/3.14;
+            int mag_norm;
+            mag_norm=sqrt(magX*magX+magY*magY+magZ*magZ);
+            magX=magX/mag_norm;
+            magY=magY/mag_norm;
+            magZ=magZ/mag_norm;
+
+            yaw=atan2(-magY*cos(rollAcc)+magZ*sin(rollAcc),magX*cos(pitchComplement)+magY*sin(pitchComplement)*sin(rollAcc)+
+                magZ*sin(pitchComplement)*cos(rollAcc))*180/3.14;
 
             cout<<"AccX: "<<accX<<" AccY: "<<accY<<" AccZ: "<<accZ<<endl;
-            cout<<"Pitch: "<<pitchComplement<<" Roll: "<<rollAcc<< " Yaw: "<<yaw<<endl;
+            cout<<"Pitch: "<<pitchComplement<<" Roll: "<<rollAcc<< " Yaw: "<<(magX+magY)*180/3.14<<endl;
+            // cout<<"Uknown: "<<unknownx<<endl;
             // cout<<"GyrX: "<<gyrX<<" GyrY: "<<gyrY<<" GyrZ: "<<gyrZ<<endl;
             // cout<<"MagX: "<<magX/1000<<" MagY: "<<magY/1000<<" MagZ: "<<magZ/1000<<endl;
 
             //sources: http://engineering.stackexchange.com/questions/3348/calculating-pitch-yaw-and-roll-from-mag-acc-and-gyro-data
             //sources: https://theccontinuum.com/2012/09/24/arduino-imu-pitch-roll-from-accelerometer/
+            //source: https://sites.google.com/site/myimuestimationexperience/sensors/magnetometer
             //Bob code ends here 
         }
         cout<<endl;
