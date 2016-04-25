@@ -11,6 +11,11 @@
 #include <math.h>
 #include <time.h>
 
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <netinet/in.h>
+#include <netdb.h>
+
 using namespace std;
 
 int main()
@@ -47,6 +52,29 @@ int main()
     int timeStamp;
     char rawPressures[47];
     int lineCount = 1;
+
+    // Sockety Stuff
+    int sockfd, n;
+    int portno = 6000;
+    struct sockaddr_in serv_addr;
+    struct hostent *server;
+
+    sockfd = socket(AF_INET, SOCK_STREAM, 0);
+    server = gethostbyname("128.205.44.16");
+    //server = gethostbyname("127.0.0.1");
+
+    bzero((char *) &serv_addr, sizeof(serv_addr));
+    serv_addr.sin_family = AF_INET;
+
+    bcopy((char *)server->h_addr, (char*) &serv_addr.sin_addr.s_addr, server->h_length);
+    serv_addr.sin_port = htons(portno);
+
+    n = connect(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr));
+    if(n < 0) {
+      cout << "Cannot connect to server." << endl;
+      exit(0);
+    }
+
     //Initial Connect to bind transfer
     system("hcitool lecc B4:99:4C:67:B7:B4");
     sleep(3); 
@@ -225,7 +253,7 @@ int main()
                 altYaw+=gyrZ*3;
                 // cout<<"NEGATIVE"<<endl;
             }
-            else if(abs(gyrZ)>0.35){
+            else if(abs(gyrZ)>0.3){
                 altYaw+=gyrZ*5.75;
             }
             
@@ -240,21 +268,31 @@ int main()
             }
             
 
-            // cout<<"AccX: "<<accX<<" AccY: "<<accY<<" AccZ: "<<accZ<<endl;
-            cout<<"raw yaw: "<<gyrZ<<" "<<endl;
-            cout<<"Pitch: "<<pitchComplement<<" Roll: "<<rollAcc<< " Yaw: "<<int(altYaw)<<endl;
-            // cout<<"Uknown: "<<unknownx<<endl;
-            // cout<<"GyrX: "<<gyrX<<" GyrY: "<<gyrY<<" GyrZ: "<<gyrZ<<endl;
-            // cout<<"MagX: "<<magX/1000<<" MagY: "<<magY/1000<<" MagZ: "<<magZ/1000<<endl;
 
-            //sources: http://engineering.stackexchange.com/questions/3348/calculating-pitch-yaw-and-roll-from-mag-acc-and-gyro-data
-            //sources: https://theccontinuum.com/2012/09/24/arduino-imu-pitch-roll-from-accelerometer/
-            //source: https://sites.google.com/site/myimuestimationexperience/sensors/magnetometer
-            //Bob code ends here 
+            // cout<<"AccX: "<<accX<<" AccY: "<<accY<<" AccZ: "<<accZ<<endl;
+        cout<<"raw yaw: "<<gyrZ<<" "<<endl;
+        cout<<"Pitch: "<<pitchComplement<<" Roll: "<<rollAcc<< " Yaw: "<<int(altYaw)<<endl;
+
+        char socket_msg[256];
+	    sprintf(socket_msg, "%d %d %f\r\n", pitchComplement, rollAcc, ((magX + magY)*180/3.14));
+	    write(sockfd, socket_msg, strlen(socket_msg));
+
+        cout<<"AccX: "<<accX<<" AccY: "<<accY<<" AccZ: "<<accZ<<endl;
+        cout<<"Pitch: "<<pitchComplement<<" Roll: "<<rollAcc<< " Yaw: "<<(magX+magY)*180/3.14<<endl;
+
+        // cout<<"Uknown: "<<unknownx<<endl;
+        // cout<<"GyrX: "<<gyrX<<" GyrY: "<<gyrY<<" GyrZ: "<<gyrZ<<endl;
+        // cout<<"MagX: "<<magX/1000<<" MagY: "<<magY/1000<<" MagZ: "<<magZ/1000<<endl;
+
+        //sources: http://engineering.stackexchange.com/questions/3348/calculating-pitch-yaw-and-roll-from-mag-acc-and-gyro-data
+        //sources: https://theccontinuum.com/2012/09/24/arduino-imu-pitch-roll-from-accelerometer/
+        //source: https://sites.google.com/site/myimuestimationexperience/sensors/magnetometer
+        //Bob code ends here 
         }
         cout<<endl;
     index = 0;
     }
+    close(sockfd);
     pclose(in1);
     return 0;
 }
