@@ -58,6 +58,10 @@ int main()
     }
     int lasttime;
     lasttime=time(NULL);
+    int downsample;
+    downsample=0;
+    int altYaw;
+    altYaw=0;
     while(fgets(buff, sizeof(buff), in1)!=NULL)
     {
         //Deleting Unnecessary components of 
@@ -215,11 +219,30 @@ int main()
             magY=magY/mag_norm;
             magZ=magZ/mag_norm;
 
-            yaw=atan2(-magY*cos(rollAcc)+magZ*sin(rollAcc),magX*cos(pitchComplement)+magY*sin(pitchComplement)*sin(rollAcc)+
-                magZ*sin(pitchComplement)*cos(rollAcc))*180/3.14;
+            // yaw=atan2(-magY*cos(rollAcc)+magZ*sin(rollAcc),magX*cos(pitchComplement)+magY*sin(pitchComplement)*sin(rollAcc)+
+            //     magZ*sin(pitchComplement)*cos(rollAcc))*180/3.14;
+            if(abs(gyrZ)>1.75 ){
+                altYaw+=gyrZ*3;
+                // cout<<"NEGATIVE"<<endl;
+            }
+            else if(abs(gyrZ)>0.35){
+                altYaw+=gyrZ*5.75;
+            }
+            
+            if(downsample==0){
+                // cout<<"downsample is false"<<endl;
+                // yaw = 180 * atan (accZ/sqrt(accX*accX + accZ*accZ))/3.14159;
+                yaw=(magX+magY)*180/3.14*2;
+                downsample=3;
+            }
+            else{
+                downsample--;
+            }
+            
 
-            cout<<"AccX: "<<accX<<" AccY: "<<accY<<" AccZ: "<<accZ<<endl;
-            cout<<"Pitch: "<<pitchComplement<<" Roll: "<<rollAcc<< " Yaw: "<<(magX+magY)*180/3.14<<endl;
+            // cout<<"AccX: "<<accX<<" AccY: "<<accY<<" AccZ: "<<accZ<<endl;
+            cout<<"raw yaw: "<<gyrZ<<" "<<endl;
+            cout<<"Pitch: "<<pitchComplement<<" Roll: "<<rollAcc<< " Yaw: "<<int(altYaw)<<endl;
             // cout<<"Uknown: "<<unknownx<<endl;
             // cout<<"GyrX: "<<gyrX<<" GyrY: "<<gyrY<<" GyrZ: "<<gyrZ<<endl;
             // cout<<"MagX: "<<magX/1000<<" MagY: "<<magY/1000<<" MagZ: "<<magZ/1000<<endl;
