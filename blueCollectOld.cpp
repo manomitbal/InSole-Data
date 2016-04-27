@@ -11,12 +11,6 @@
 #include <math.h>
 #include <time.h>
 
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <netinet/in.h>
-#include <netdb.h>
-// #include <algorithm>
-
 using namespace std;
 
 int main()
@@ -53,29 +47,6 @@ int main()
     int timeStamp;
     char rawPressures[47];
     int lineCount = 1;
-
-    // Sockety Stuff
-    // int sockfd, n;
-    // int portno = 6000;
-    // struct sockaddr_in serv_addr;
-    // struct hostent *server;
-
-    // sockfd = socket(AF_INET, SOCK_STREAM, 0);
-    // server = gethostbyname("128.205.44.16");
-    // //server = gethostbyname("127.0.0.1");
-
-    // bzero((char *) &serv_addr, sizeof(serv_addr));
-    // serv_addr.sin_family = AF_INET;
-
-    // bcopy((char *)server->h_addr, (char*) &serv_addr.sin_addr.s_addr, server->h_length);
-    // serv_addr.sin_port = htons(portno);
-
-    // n = connect(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr));
-    // if(n < 0) {
-    //   cout << "Cannot connect to server." << endl;
-    //   exit(0);
-    // }
-
     //Initial Connect to bind transfer
     system("hcitool lecc B4:99:4C:67:B7:B4");
     sleep(3); 
@@ -91,11 +62,6 @@ int main()
     downsample=0;
     int altYaw;
     altYaw=0;
-
-    int pressurePointArr[48];
-    // cout<<"here"<<endl;
-    int j =0;
-    int p=0;
     while(fgets(buff, sizeof(buff), in1)!=NULL)
     {
         //Deleting Unnecessary components of 
@@ -114,14 +80,10 @@ int main()
            cout<<"Pressure Points: ";
            while(index < 60)
            {
-            // pressurePointArr[j]=num;
             memcpy(pressurePoint, &tmp[index], 2);
             pressurePoint[2] = '\0';
             index = index + 3;
-            p=(255 - (((unsigned int)strtol(pressurePoint, NULL, 16))));
-            pressurePointArr[j]=p;
-            j++;
-            cout<<j<<" ";
+            cout<<(255 - (((unsigned int)strtol(pressurePoint, NULL, 16))))<<" ";
            }   
         }
 
@@ -133,19 +95,12 @@ int main()
                 memcpy(pressurePoint, &tmp[index], 2);
                 pressurePoint[2] = '\0';
                 index = index + 3;
-                p=(255 - (((unsigned int)strtol(pressurePoint, NULL, 16))));
-                pressurePointArr[j]=p;
-                j++;
-                // cout<<p<<" ";
-            } 
-            // cout<<"J here: "<<j;
-            j=0;  
+                cout<<(255 - (((unsigned int)strtol(pressurePoint, NULL, 16))))<<" ";
+            }   
         }
-
 
         else if(tmp[1] == '3')
         {
-            // cout<<"J: "<<j<<endl;
             memcpy(accelX_msb, &tmp[3], 2);
             accelX_msb[2] = '\0';
             memcpy(accelX_lsb, &tmp[6], 2);
@@ -270,8 +225,8 @@ int main()
                 altYaw+=gyrZ*3;
                 // cout<<"NEGATIVE"<<endl;
             }
-            else if(abs(gyrZ)>0.25){
-                altYaw+=(gyrZ*6.4);
+            else if(abs(gyrZ)>0.35){
+                altYaw+=gyrZ*5.75;
             }
             
             if(downsample==0){
@@ -283,75 +238,23 @@ int main()
             else{
                 downsample--;
             }
-            //tuning pitch to work correctly
-            cout<<"actual pitch: "<<pitchComplement<<endl;
-            // pitchComplement=-0.021614*(pitchComplement)*pitchComplement+2.83964*pitchComplement+4.82555; 
-            int op1=0;
-            if(pitchComplement<4){
-                op1=pitchComplement/0.4+33.3;
-            }
-            else if(28.9796*log(pitchComplement)<33){
-                op1=33.3;
-            }
-            else{
-                op1=28.9796*log(pitchComplement);
-            }
-            pitchComplement=op1-33.2165;
-            // if(pitchComplement<20 && pitchComplement>1){
-                
-            //     pitchComplement/=0.3;
-            // }
-            // else if(pitchComplement>=20 && pitchComplement<25){
-            //     pitchComplement/=0.33;
-            // }
-            // else if(pitchComplement<70){
-            //     pitchComplement/=0.34;
-            // }
             
 
-            //now to analyze the pressure sensors to determine color
-            int color;
-            color=0;
+            // cout<<"AccX: "<<accX<<" AccY: "<<accY<<" AccZ: "<<accZ<<endl;
+            cout<<"raw yaw: "<<gyrZ<<" "<<endl;
+            cout<<"Pitch: "<<pitchComplement<<" Roll: "<<rollAcc<< " Yaw: "<<int(altYaw)<<endl;
+            // cout<<"Uknown: "<<unknownx<<endl;
+            // cout<<"GyrX: "<<gyrX<<" GyrY: "<<gyrY<<" GyrZ: "<<gyrZ<<endl;
+            // cout<<"MagX: "<<magX/1000<<" MagY: "<<magY/1000<<" MagZ: "<<magZ/1000<<endl;
 
-            //determine the number of sensors over 75 and over 125
-            int count75=0;
-            int count125=0;
-
-            for(int i=0;i<48;i++){
-                if(pressurePointArr[i]>75){
-                    count75++;
-                }
-                if(pressurePointArr[i]>125){
-                    count125++;
-                }
-            }
-
-            if(count125>5){
-                color=2;//red
-            }
-            else if(count75>5){
-                color=1;//orange
-            }
-            else{
-                color=0;//green
-            }
-            cout<<endl;
-            cout<<"Protocol: "<<rollAcc<<" "<<pitchComplement<<" "<<int(altYaw)<<" "<<color<<endl;
-            // cout<<"Pitch: "<<pitchComplement<<" Roll: "<<rollAcc<< " Yaw: "<<int(altYaw)<<endl;
-
-        // cout<<"Uknown: "<<unknownx<<endl;
-        // cout<<"GyrX: "<<gyrX<<" GyrY: "<<gyrY<<" GyrZ: "<<gyrZ<<endl;
-        // cout<<"MagX: "<<magX/1000<<" MagY: "<<magY/1000<<" MagZ: "<<magZ/1000<<endl;
-
-        //sources: http://engineering.stackexchange.com/questions/3348/calculating-pitch-yaw-and-roll-from-mag-acc-and-gyro-data
-        //sources: https://theccontinuum.com/2012/09/24/arduino-imu-pitch-roll-from-accelerometer/
-        //source: https://sites.google.com/site/myimuestimationexperience/sensors/magnetometer
-        //Bob code ends here 
+            //sources: http://engineering.stackexchange.com/questions/3348/calculating-pitch-yaw-and-roll-from-mag-acc-and-gyro-data
+            //sources: https://theccontinuum.com/2012/09/24/arduino-imu-pitch-roll-from-accelerometer/
+            //source: https://sites.google.com/site/myimuestimationexperience/sensors/magnetometer
+            //Bob code ends here 
         }
         cout<<endl;
     index = 0;
     }
-    // close(sockfd);
-    // pclose(in1);
+    pclose(in1);
     return 0;
 }
