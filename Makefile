@@ -1,5 +1,7 @@
-main: blueCollect.cpp
-		g++ -o blue blueCollect.cpp 
+main: blueCollectOriginal.cpp blueCollectSingleSole.cpp blueCollectBothSoles.cpp
+		g++ -o originalSole blueCollectOriginal.cpp 
+		g++ -o singleSole blueCollectSingleSole.cpp 
+		g++ -o bothSoles blueCollectBothSoles.cpp
 clean:
-		rm -rf blue
+		rm -rf originalSole singleSole bothSoles
 
